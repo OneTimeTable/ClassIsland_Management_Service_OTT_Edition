@@ -2,9 +2,14 @@
 {% block title %}客户端管理 - ClassIsland 集控{% endblock %}
 
 {% block content %}
-<div class="page-header">
-    <h4><i class="bi bi-display"></i> 客户端管理</h4>
-    <p class="text-muted mb-0">查看和管理已注册的 ClassIsland 客户端</p>
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h4><i class="bi bi-display"></i> 客户端管理</h4>
+        <p class="text-muted mb-0">查看和管理已注册的 ClassIsland 客户端</p>
+    </div>
+    <a href="{% url 'download_management_settings_template' %}" class="btn btn-outline-success">
+        <i class="bi bi-download"></i> 下载通用配置
+    </a>
 </div>
 
 <div class="card">
@@ -45,6 +50,9 @@
                     <td>
                         <a href="{% url 'client_detail' c.client_uid %}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye"></i> 详情
+                        </a>
+                        <a href="{% url 'download_management_settings' c.client_uid %}" class="btn btn-sm btn-outline-success ms-1">
+                            <i class="bi bi-download"></i> 下载配置
                         </a>
                     </td>
                 </tr>
