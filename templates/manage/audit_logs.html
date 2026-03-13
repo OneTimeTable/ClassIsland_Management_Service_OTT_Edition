@@ -22,7 +22,7 @@
                 {% for log in logs %}
                 <tr>
                     <td>
-                        <a href="{% url 'client_detail' log.client.pk %}">
+                        <a href="{% url 'client_detail' log.client.client_uid %}">
                             <code>{{ log.client.client_uid|truncatechars:16 }}</code>
                         </a>
                     </td>

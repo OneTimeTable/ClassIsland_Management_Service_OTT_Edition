@@ -43,7 +43,7 @@
                     </td>
                     <td>{{ c.last_seen|default:"-" }}</td>
                     <td>
-                        <a href="{% url 'client_detail' c.pk %}" class="btn btn-sm btn-outline-primary">
+                        <a href="{% url 'client_detail' c.client_uid %}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-eye"></i> 详情
                         </a>
                     </td>
