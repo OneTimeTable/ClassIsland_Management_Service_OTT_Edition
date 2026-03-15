@@ -165,6 +165,17 @@
                                 </div>
                             </div>
                         </div>
+                        {% elif active_tab == 'components' %}
+                        <div class="mb-2">
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="addComponentJsonFile" accept=".json,application/json">
+                                <button type="button" class="btn btn-outline-secondary" onclick="importComponentJson('add')">
+                                    <i class="bi bi-upload"></i> 从 JSON 导入
+                                </button>
+                            </div>
+                            <div class="form-text">选择一个 JSON 文件，导入后将自动填充下方内容。</div>
+                        </div>
+                        <textarea name="data_json" id="addDataJson" class="form-control font-monospace" rows="8" placeholder="{}"></textarea>
                         {% else %}
                         <textarea name="data_json" class="form-control font-monospace" rows="8" placeholder="{}"></textarea>
                         {% endif %}
@@ -298,6 +309,17 @@
                                 </div>
                             </div>
                         </div>
+                        {% elif active_tab == 'components' %}
+                        <div class="mb-2">
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="editComponentJsonFile" accept=".json,application/json">
+                                <button type="button" class="btn btn-outline-secondary" onclick="importComponentJson('edit')">
+                                    <i class="bi bi-upload"></i> 从 JSON 导入
+                                </button>
+                            </div>
+                            <div class="form-text">选择一个 JSON 文件，导入后将自动填充下方内容。</div>
+                        </div>
+                        <textarea name="data_json" id="editDataJson" class="form-control font-monospace" rows="12"></textarea>
                         {% else %}
                         <textarea name="data_json" id="editDataJson" class="form-control font-monospace" rows="12"></textarea>
                         {% endif %}
@@ -383,6 +405,31 @@ function fillCredentialData(prefix, data) {
         const v = Number(data?.[key]);
         el.value = Number.isInteger(v) && v >= 0 && v <= 2 ? String(v) : '0';
     });
+}
+
+function importComponentJson(prefix) {
+    const fileInputId = prefix === 'add' ? 'addComponentJsonFile' : 'editComponentJsonFile';
+    const textareaId = prefix === 'add' ? 'addDataJson' : 'editDataJson';
+    const input = document.getElementById(fileInputId);
+    const textarea = document.getElementById(textareaId);
+    if (!input || !textarea) return;
+    const file = input.files?.[0];
+    if (!file) {
+        alert('请先选择 JSON 文件');
+        return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+        try {
+            const text = String(reader.result || '');
+            const parsed = JSON.parse(text);
+            textarea.value = JSON.stringify(parsed, null, 2);
+        } catch {
+            alert('导入失败：文件不是有效的 JSON');
+        }
+    };
+    reader.onerror = () => alert('读取文件失败');
+    reader.readAsText(file, 'utf-8');
 }
 
 async function loadConfigs() {
