@@ -48,11 +48,11 @@
                         <option value="">-- 不关联 --</option>
                         {% for cp in class_plans %}
                         <option value="{{ cp.id }}" {% if group.linked_class_plan_id == cp.id %}selected{% endif %}>
-                            {{ cp.name }} ({{ cp.identifier }}) — 时间表: {{ cp.time_layout.name }}
+                            {{ cp.name }} ({{ cp.identifier }}) — 时间表: {{ cp.time_layout.name }} · 科目: {% if cp.subjects %}{{ cp.subjects.name }}{% else %}未绑定{% endif %}
                         </option>
                         {% endfor %}
                     </select>
-                    <div class="form-text">选择课表后，其依赖的时间表会自动关联，无需单独选择时间表。</div>
+                    <div class="form-text">选择课表后，其依赖的时间表会自动关联；若课表已绑定科目，也会自动同步科目。</div>
                 </div>
             </div>
 
@@ -71,6 +71,7 @@
                         </option>
                         {% endfor %}
                     </select>
+                    <div class="form-text">若当前课表已绑定科目，保存后这里会自动回填为课表绑定的科目。</div>
                 </div>
             </div>
 

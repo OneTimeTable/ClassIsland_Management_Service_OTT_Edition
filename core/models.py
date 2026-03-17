@@ -351,6 +351,11 @@ class ClassPlanConfig(models.Model):
         related_name="class_plans",
         verbose_name="依赖时间表",
     )
+    subjects = models.ForeignKey(
+        "SubjectConfig", on_delete=models.PROTECT,
+        related_name="class_plans",
+        verbose_name="依赖科目",
+    )
     data_json = models.JSONField("课表 JSON", default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

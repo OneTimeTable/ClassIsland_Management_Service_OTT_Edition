@@ -34,6 +34,7 @@
                     <th>标识</th>
                     {% if active_tab == 'class_plans' %}
                     <th>依赖时间表</th>
+                    <th>依赖科目</th>
                     {% endif %}
                     <th>更新时间</th>
                     <th>操作</th>
@@ -73,6 +74,15 @@
                             <option value="">请选择时间表</option>
                             {% for tl in time_layouts %}
                             <option value="{{ tl.id }}">{{ tl.name }} ({{ tl.identifier }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">依赖科目 <span class="text-danger">*</span></label>
+                        <select name="subjects_id" class="form-select" required>
+                            <option value="">请选择科目</option>
+                            {% for s in subjects_list %}
+                            <option value="{{ s.id }}">{{ s.name }} ({{ s.identifier }})</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -307,6 +317,15 @@
                             <option value="">请选择时间表</option>
                             {% for tl in time_layouts %}
                             <option value="{{ tl.id }}">{{ tl.name }} ({{ tl.identifier }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">依赖科目 <span class="text-danger">*</span></label>
+                        <select name="subjects_id" id="editSubjects" class="form-select" required>
+                            <option value="">请选择科目</option>
+                            {% for s in subjects_list %}
+                            <option value="{{ s.id }}">{{ s.name }} ({{ s.identifier }})</option>
                             {% endfor %}
                         </select>
                     </div>
@@ -842,13 +861,14 @@ async function loadConfigs() {
     const data = await resp.json();
     const tbody = document.getElementById('configTableBody');
     if (!data.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted py-4">暂无配置，点击右上角创建</td></tr>';
+        tbody.innerHTML = `<tr><td colspan="${CONFIG_TYPE === 'class_plans' ? '6' : '4'}" class="text-center text-muted py-4">暂无配置，点击右上角创建</td></tr>`;
         return;
     }
     tbody.innerHTML = data.map(item => {
         let cols = `<td><strong>${item.name}</strong></td><td><code>${item.identifier}</code></td>`;
         if (CONFIG_TYPE === 'class_plans') {
             cols += `<td>${item.time_layout_name || '-'}</td>`;
+            cols += `<td>${item.subjects_name || '-'}</td>`;
         }
         cols += `<td>${new Date(item.updated_at).toLocaleString()}</td>`;
         cols += `<td><button class="btn btn-sm btn-outline-primary" onclick="editConfig(${item.id})"><i class="bi bi-pencil"></i> 编辑</button></td>`;
@@ -877,6 +897,7 @@ document.getElementById('addConfigForm').addEventListener('submit', async functi
     }
     if (CONFIG_TYPE === 'class_plans') {
         body.time_layout_id = fd.get('time_layout_id');
+        body.subjects_id = fd.get('subjects_id');
     }
     const resp = await fetch(API_BASE, {
         method: 'POST',
@@ -911,6 +932,8 @@ async function editConfig(id) {
     }
     const tlSelect = document.getElementById('editTimeLayout');
     if (tlSelect) tlSelect.value = item.time_layout_id || '';
+    const sbjSelect = document.getElementById('editSubjects');
+    if (sbjSelect) sbjSelect.value = item.subjects_id || '';
     new bootstrap.Modal(document.getElementById('editConfigModal')).show();
 }
 
@@ -936,6 +959,7 @@ document.getElementById('editConfigForm').addEventListener('submit', async funct
     }
     if (CONFIG_TYPE === 'class_plans') {
         body.time_layout_id = fd.get('time_layout_id');
+        body.subjects_id = fd.get('subjects_id');
     }
     const resp = await fetch(`${API_BASE}${id}/`, {
         method: 'PUT',

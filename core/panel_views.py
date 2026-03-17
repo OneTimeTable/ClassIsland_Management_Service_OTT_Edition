@@ -92,7 +92,7 @@ def class_group_detail(request, pk):
 
     context = {
         "group": group,
-        "class_plans": ClassPlanConfig.objects.all().order_by("name"),
+        "class_plans": ClassPlanConfig.objects.select_related("time_layout", "subjects").all().order_by("name"),
         "subjects_list": SubjectConfig.objects.all().order_by("name"),
         "default_settings_list": DefaultSettingsConfig.objects.all().order_by("name"),
         "policy_list": PolicyConfig.objects.all().order_by("name"),
@@ -126,6 +126,15 @@ def _sync_linked_json(group):
         if tl_data != group.time_layouts_json:
             group.time_layouts_json = tl_data
             group.time_layouts_version += 1
+    # 如果课表有关联科目，同步科目 JSON，并回填关联科目
+    if group.linked_class_plan and group.linked_class_plan.subjects:
+        subject_cfg = group.linked_class_plan.subjects
+        if group.linked_subjects_id != subject_cfg.id:
+            group.linked_subjects = subject_cfg
+        sbj_data = subject_cfg.data_json
+        if sbj_data != group.subjects_json:
+            group.subjects_json = sbj_data
+            group.subjects_version += 1
 
 
 @login_required
@@ -284,4 +293,5 @@ def config_editor(request, config_type=None):
     # 课表需要时间表列表用于选择
     if config_type == "class_plans":
         context["time_layouts"] = TimeLayoutConfig.objects.all().order_by("name")
+        context["subjects_list"] = SubjectConfig.objects.all().order_by("name")
     return render(request, "manage/config_editor.html", context)

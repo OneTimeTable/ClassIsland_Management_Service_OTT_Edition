@@ -482,6 +482,8 @@ class ConfigListAPI(APIView):
             if config_type == "class_plans":
                 d["time_layout_id"] = item.time_layout_id
                 d["time_layout_name"] = item.time_layout.name if item.time_layout else ""
+                d["subjects_id"] = item.subjects_id
+                d["subjects_name"] = item.subjects.name if item.subjects else ""
             elif config_type == "policy":
                 d["data_json"] = _normalize_policy_data(item.data_json)
             elif config_type == "credential":
@@ -523,6 +525,14 @@ class ConfigListAPI(APIView):
             except TimeLayoutConfig.DoesNotExist:
                 return Response({"error": "时间表不存在"}, status=404)
 
+            sbj_id = request.data.get("subjects_id")
+            if not sbj_id:
+                return Response({"error": "课表必须选择一个科目"}, status=400)
+            try:
+                kwargs["subjects"] = SubjectConfig.objects.get(pk=sbj_id)
+            except SubjectConfig.DoesNotExist:
+                return Response({"error": "科目不存在"}, status=404)
+
         obj = Model.objects.create(**kwargs)
         return Response({"id": obj.id, "name": obj.name, "identifier": obj.identifier}, status=201)
 
@@ -547,6 +557,8 @@ class ConfigDetailAPI(APIView):
         if config_type == "class_plans":
             d["time_layout_id"] = obj.time_layout_id
             d["time_layout_name"] = obj.time_layout.name if obj.time_layout else ""
+            d["subjects_id"] = obj.subjects_id
+            d["subjects_name"] = obj.subjects.name if obj.subjects else ""
         elif config_type == "policy":
             d["data_json"] = _normalize_policy_data(obj.data_json)
         elif config_type == "credential":
@@ -578,6 +590,13 @@ class ConfigDetailAPI(APIView):
                 obj.time_layout = TimeLayoutConfig.objects.get(pk=data["time_layout_id"])
             except TimeLayoutConfig.DoesNotExist:
                 return Response({"error": "时间表不存在"}, status=404)
+        if config_type == "class_plans":
+            if "subjects_id" not in data or data["subjects_id"] in (None, ""):
+                return Response({"error": "课表必须选择一个科目"}, status=400)
+            try:
+                obj.subjects = SubjectConfig.objects.get(pk=data["subjects_id"])
+            except SubjectConfig.DoesNotExist:
+                return Response({"error": "科目不存在"}, status=404)
         obj.save()
         return Response({"message": "已更新"})
 
